@@ -36,10 +36,8 @@ header{background:#fff;position:sticky;top:0;z-index:5;border-bottom:1px solid v
 <div class="field"><label for="service">সার্ভিস</label><select id="service" required><option value="">আগে প্ল্যাটফর্ম বেছে নিন</option></select></div>
 <div class="field"><label for="link">পাবলিক পোস্ট/প্রোফাইল লিংক</label><input id="link" type="url" placeholder="https://..." required></div>
 <div class="field"><label for="quantity">পরিমাণ (ডেমো)</label><input id="quantity" type="number" min="1" max="100000" placeholder="যেমন 100" required></div>
-<div class="field"><label for="contact">আপনার যোগাযোগ</label><input id="contact" placeholder="ইমেইল বা Telegram username" required></div>
-<div class="field"><label for="adminPassword">প্যানেল অ্যাডমিন পাসওয়ার্ড (সার্ভার যাচাই)</label><input id="adminPassword" type="password" autocomplete="current-password" placeholder="শুধু নিজের পরীক্ষার জন্য"></div>
-<div class="notice">এই স্টার্টার প্রজেক্টে অর্ডার API অ্যাডমিন পাসওয়ার্ড দিয়ে সুরক্ষিত। কাস্টমারদের জন্য পাবলিক অর্ডার চালু করার আগে লগইন, পেমেন্ট যাচাই, rate limit ও অপব্যবহার প্রতিরোধ যোগ করুন। কখনো Provider API key দেবেন না।</div>
-<button class="btn wide" style="margin-top:15px" type="submit">ডেমো অর্ডার তৈরি করুন</button>
+<div class="notice">পাবলিক কাস্টমার অর্ডার এখনো চালু করা হয়নি। অ্যাডমিন হিসেবে অর্ডার পরিচালনা করতে <a href="/admin.html"><strong>Admin Dashboard</strong></a> ব্যবহার করুন। এই ফর্ম থেকে Provider-এ অর্ডার পাঠানো হয় না।</div>
+<button class="btn wide" style="margin-top:15px" type="submit">ডেমো অর্ডার পরীক্ষা</button>
 </form><div class="result" id="result"></div>
 </div></section>
 <section class="card"><h2>API যুক্ত করার আগে</h2><div class="inside"><ul><li>Provider-এর অফিসিয়াল API ও মূল্য যাচাই করুন।</li><li>API key শুধু সার্ভার-side-এ রাখুন, HTML/JavaScript-এ নয়।</li><li>SSL certificate যাচাই বন্ধ করবেন না।</li><li>পেমেন্ট, অর্ডার লগ, রিফান্ড ও abuse protection যোগ করুন।</li></ul><p class="hint">এই ডেমোতে API key রাখা হয়নি এবং GetmyFollow-এ কোনো live request পাঠানো হয় না।</p></div></section>
@@ -54,16 +52,7 @@ const options={
 };
 const platform=document.getElementById('platform'), service=document.getElementById('service');
 platform.addEventListener('change',()=>{service.innerHTML='<option value="">সার্ভিস বেছে নিন</option>';(options[platform.value]||[]).forEach(x=>{let o=document.createElement('option');o.textContent=x;service.appendChild(o)})});
-document.getElementById('orderForm').addEventListener('submit',async e=>{
- e.preventDefault(); const r=document.getElementById('result'); r.style.display='block'; r.textContent='অর্ডার যাচাই হচ্ছে…';
- const password=document.getElementById('adminPassword').value;
- const selectedService=service.options[service.selectedIndex]?.dataset.serviceId;
- if(!selectedService){r.textContent='Provider-এর service ID এখনো লোড হয়নি। সার্ভার চালু আছে কি না দেখুন।';return;}
- try{
-  const response=await fetch('/api/order',{method:'POST',headers:{'Content-Type':'application/json','x-admin-password':password},body:JSON.stringify({service:Number(selectedService),link:document.getElementById('link').value,quantity:Number(document.getElementById('quantity').value)})});
-  const data=await response.json(); r.textContent=response.ok?('Provider response: '+JSON.stringify(data,null,2)):('ত্রুটি: '+(data.error||'অর্ডার ব্যর্থ'));
- }catch(err){r.textContent='সার্ভারের সঙ্গে সংযোগ হয়নি। Deploy logs দেখুন।';}
-});
+document.getElementById('orderForm').addEventListener('submit',e=>{e.preventDefault();const r=document.getElementById('result');r.style.display='block';r.textContent='এটি শুধু ডেমো ফর্ম। লাইভ অর্ডার পরিচালনার জন্য Admin Dashboard-এ লগইন করুন।';});
 async function loadServices(){
  try{
   const res=await fetch('/api/services'); const data=await res.json();
