@@ -1,52 +1,50 @@
-# BoostBari API Starter (বাংলা)
+# BoostBari SMM Panel + Admin Dashboard (বাংলা)
 
-## কী আছে
-- বাংলা responsive frontend
-- `/api/services` থেকে GetmyFollow সার্ভিস তালিকা
-- সার্ভার-সাইড API key; ব্রাউজারে key পাঠানো হয় না
-- অ্যাডমিন পাসওয়ার্ডে সুরক্ষিত `/api/order` ও `/api/balance`
-- API rate limit ও basic input validation
+এই সংস্করণে `/admin.html`-এ admin login, PostgreSQL database, order history, provider balance/services, admin থেকে provider order create, order status refresh এবং audit events আছে। GetmyFollow API Key শুধু server-side Environment Variable-এ থাকে।
 
-## ফ্রি Render-এ চালানোর ধাপ
-1. ZIP extract করে GitHub-এ নতুন **private repository** তৈরি করে ফাইলগুলো upload করুন।
-2. Render.com-এ sign up করে **New + Web Service** বেছে GitHub repository connect করুন।
-3. Runtime Node, Build Command `npm install`, Start Command `npm start` দিন।
-4. Environment Variables-এ যোগ করুন:
-   - `GETMYFOLLOW_API_KEY` = GetmyFollow Account পেজের API key
-   - `PANEL_ADMIN_PASSWORD` = দীর্ঘ, অনন্য পাসওয়ার্ড (কমপক্ষে 20 অক্ষরের random phrase)
-   - `GETMYFOLLOW_API_URL` = `https://my.getmyfollow.com/api/v2` (ঐচ্ছিক)
-5. Create Web Service চাপুন। Deploy শেষ হলে Render URL খুলুন।
-6. `/api/health` খুলে `ok: true` দেখুন। `providerConfigured: true` হলে key environment variable-এ আছে; এটি key প্রকাশ করে না।
-7. Service dropdown-এ সার্ভিস না এলে GetmyFollow API key, balance/account status, deploy logs পরীক্ষা করুন।
+## গুরুত্বপূর্ণ সীমা
+- এটি **admin dashboard + provider order management**; এখনো customer signup/login, customer wallet/ledger, payment gateway, automatic refunds বা public customer order submission নেই। গ্রাহকের টাকা নেওয়া শুরু করার আগে এগুলো আলাদাভাবে তৈরি ও পরীক্ষা করতে হবে।
+- Provider order তৈরি করলে বাস্তব Provider balance থেকে টাকা কাটতে পারে। Production-এ যাওয়ার আগে ছোট test order/Provider rules যাচাই করুন।
+- Render Free web service ঘুমিয়ে যেতে পারে। Database-এর জন্য Render PostgreSQL plan/availability ও খরচ আপনার dashboard-এ যাচাই করুন; database free tier সব অ্যাকাউন্ট/সময়ে উপলব্ধ নাও হতে পারে।
 
-## গুরুত্বপূর্ণ নিরাপত্তা
-- API key কখনো HTML, JavaScript, GitHub commit, screenshot বা chat-এ রাখবেন না।
-- GetmyFollow API key শুধু Render-এর Environment Variables-এ রাখুন।
-- এই starter-এ `/api/order` অ্যাডমিন পাসওয়ার্ড-সুরক্ষিত; এটা সাধারণ কাস্টমারদের জন্য production order flow নয়।
-- পাবলিক কাস্টমার অর্ডার চালু করতে customer authentication, verified payment/credit ledger, order limits, audit logs, refund handling এবং anti-abuse protection তৈরি করতে হবে।
-- API provider-এর Terms এবং প্রতিটি social platform-এর rules মেনে চলুন।
-- Render free web service 15 মিনিট নিষ্ক্রিয় থাকলে sleep করে এবং জাগতে সময় নিতে পারে। এটি পরীক্ষার জন্য; ব্যবসার production reliability নয়।
-- Provider API response-এর field provider অনুযায়ী বদলাতে পারে; আগে ছোট quantity-তে পরীক্ষামূলক অর্ডার দিন।
-- HTTPS validation অন রাখুন। API key/secret logs-এ print করবেন না।
+## GitHub-এ আপডেট
+1. Repository-র root-এ এই ZIP-এর **ভেতরের ফাইলগুলো** আপলোড/replace করুন: `server.js`, `package.json`, `.gitignore`, `README_BN.md` এবং `public/index.html`, `public/admin.html`। ZIP ফাইল নিজে root-এ রেখে দিলে সেটি deploy হয় না।
+2. নিশ্চিত করুন `public` একটি **folder**, ফাইল নয়। এর ভেতরে `index.html` ও `admin.html` থাকবে। Root-এ `server.js` ও `package.json` থাকবে।
+3. `server.js` বা `package.json`-এ কোনো API key লিখবেন না।
+
+Expected structure:
+```
+server.js
+package.json
+README_BN.md
+.gitignore
+public/
+  index.html
+  admin.html
+```
+
+## Render PostgreSQL যুক্ত করা
+1. Render Dashboard → New → PostgreSQL (বা Dashboard-এর Databases অংশ থেকে নতুন PostgreSQL তৈরি করুন)।
+2. একই region বেছে নিন যেখানে Web Service আছে। Database-এর internal connection string/copy URL নিন।
+3. Web Service → Environment → Add Environment Variable:
+   - `DATABASE_URL` = Render PostgreSQL-এর **Internal Database URL** (web service ও database একই region হলে)
+   - `GETMYFOLLOW_API_URL` = `https://my.getmyfollow.com/api/v2`
+   - `GETMYFOLLOW_API_KEY` = GetmyFollow-এর আসল API key
+   - `PANEL_ADMIN_PASSWORD` = দীর্ঘ, অনন্য পাসওয়ার্ড (কমপক্ষে 20 অক্ষর; অন্য কোথাও ব্যবহার করবেন না)
+4. `Save, rebuild, and deploy` বা Render-এর সমতুল্য deploy action দিন। প্রথম চালুতে server নিজে টেবিল তৈরি করবে। DB connection error হলে database status, URL এবং একই region যাচাই করুন।
+
+## অ্যাডমিন লগইন
+- `https://YOUR-RENDER-DOMAIN/admin.html`
+- `PANEL_ADMIN_PASSWORD`-এ যে পাসওয়ার্ড রেখেছেন সেটি ব্যবহার করুন।
+- Login cookie HttpOnly, Secure, SameSite=Strict; session token database-এ hash করে রাখা হয়; session 8 ঘণ্টায় মেয়াদ শেষ হয়; login attempts rate-limited।
+- `https://YOUR-RENDER-DOMAIN/api/health`-এ `databaseConfigured:true` এবং `providerConfigured:true` দেখুন। এগুলো configuration presence জানায়; provider auth সম্পূর্ণ প্রমাণ করে না।
+
+## নিরাপত্তা ও অপারেশন
+- API key, admin password, `DATABASE_URL` কাউকে পাঠাবেন না; স্ক্রিনশটে Value ঢেকে রাখুন।
+- Repository Private রাখুন। Secrets কখনো repository-তে commit করবেন না।
+- `admin.html` public URL-এ খোলা গেলেও API-র data/action server-side session ছাড়া চলবে না।
+- Admin panel-এ provider order create করলে বাস্তব অর্ডার হয়। একবার submit করার পর error হলে Provider dashboard-এ order ID যাচাই না করে আবার submit করবেন না (duplicate order হতে পারে)।
+- Production-এ নেওয়ার আগে backups, database retention, support/refund policy, customer auth/wallet/payment, legal/platform policy এবং order duplicate/idempotency handling তৈরি করুন।
 
 ## Local test
-Node.js 20+ ইনস্টল করে:
-```bash
-npm install
-# macOS/Linux:
-export GETMYFOLLOW_API_KEY='your-key'
-export PANEL_ADMIN_PASSWORD='a-long-unique-secret-passphrase'
-npm start
-```
-Windows PowerShell:
-```powershell
-$env:GETMYFOLLOW_API_KEY="your-key"
-$env:PANEL_ADMIN_PASSWORD="a-long-unique-secret-passphrase"
-npm start
-```
-তারপর `http://localhost:3000` খুলুন।
-
-## বর্তমান সীমাবদ্ধতা
-- পেমেন্ট গেটওয়ে, customer accounts, persistent database এবং admin dashboard নেই।
-- API order শুধু admin password দিয়ে ব্যবহারযোগ্য।
-- API key ভুল হলে সার্ভিস তালিকা লোড হবে না।
+Node.js 20+ প্রয়োজন। `.env` ফাইল ব্যবহার করলে সেটি GitHub-এ commit করবেন না। `npm install` তারপর `npm start`; `DATABASE_URL`, `PANEL_ADMIN_PASSWORD` সেট করা বাধ্যতামূলক।
