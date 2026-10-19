@@ -1,17 +1,10 @@
 {
-  "name": "boostbari-smm-panel-starter",
-  "version": "1.0.0",
+  "name": "boostbari-smm-panel",
+  "version": "2.0.0",
   "private": true,
-  "description": "BoostBari starter with server-side GetmyFollow API proxy",
+  "description": "BoostBari admin dashboard with PostgreSQL and server-side GetmyFollow API integration",
   "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
-  "engines": {
-    "node": ">=20"
-  },
-  "dependencies": {
-    "express": "^5.1.0",
-    "express-rate-limit": "^8.0.1"
-  }
+  "scripts": {"start": "node server.js"},
+  "engines": {"node": ">=20"},
+  "dependencies": {"express": "^5.1.0", "express-rate-limit": "^8.0.1", "pg": "^8.16.3"}
 }
